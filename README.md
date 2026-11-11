@@ -91,6 +91,14 @@ Dasselbe Verfahren taugt auch für Gegenstände. `src/objects.js` enthält einen
 - Maßstab wie bei den Figuren: 1 Einheit ist 1 Pixel, der Schreibtisch ist 19 Pixel hoch, der Abenteurer 44.
 - Anders als die Figuren sind die Objekte perspektivisch aus Augenhöhe gerendert, man sieht also leicht auf die Oberseiten.
 
+## Export für Adventure Game Studio
+
+```sh
+node cli.js ags   # schreibt den Ordner ags/
+```
+
+Der Ordner `ags/` enthält alles in der Form, die Adventure Game Studio (AGS) erwartet: je Figur Einzelbilder in der Schleifen-Reihenfolge von AGS (vorn, links, rechts, hinten, Standbild jeweils zuerst), dazu dasselbe als Raster, alle Büroobjekte als einzelne PNGs und einen leeren Testraum mit 320×200 Pixeln. Die Schritte im AGS-Editor und die einzutragenden Werte stehen in [ags/LIESMICH.md](ags/LIESMICH.md). Der Export ist bisher nicht in AGS selbst ausprobiert.
+
 ## Format der JSON-Datei
 
 ```json

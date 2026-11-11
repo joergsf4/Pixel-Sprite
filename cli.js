@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // node cli.js build  -> je Figur out/<name>.png, .json, _preview.png; out/office.* (Büroobjekte); out/preview.html und docs/ (GitHub Pages)
+// node cli.js ags    -> Ordner ags/ für Adventure Game Studio
 // node cli.js check  -> prüft Gang und Sprite-Sheets
 
 import fs from 'node:fs';
@@ -119,6 +120,74 @@ function check() {
   else console.log('Alle Prüfungen bestanden.');
 }
 
+// Export für Adventure Game Studio: Einzelbilder und Raster je Figur, Objekte einzeln, leerer Testraum.
+function ags() {
+  const dir = path.join(root, 'ags');
+  fs.rmSync(dir, { recursive: true, force: true });
+  const write = (rel, img) => {
+    const file = path.join(dir, rel);
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, Buffer.isBuffer(img) || typeof img === 'string' ? img : encodePNG(img));
+  };
+  const blank = (w, h) => ({ w, h, data: new Uint8Array(w * h * 4) });
+  // Kopiert einen Ausschnitt, auf Wunsch gespiegelt.
+  const blit = (dst, dx, dy, src, sx, sy, w, h, flip = false) => {
+    for (let y = 0; y < h; y++)
+      for (let x = 0; x < w; x++) {
+        const i = ((sy + y) * src.w + sx + (flip ? w - 1 - x : x)) * 4;
+        dst.data.set(src.data.subarray(i, i + 4), ((dy + y) * dst.w + dx + x) * 4);
+      }
+  };
+  const GAME_FPS = 40, lines = [];
+
+  // AGS-Reihenfolge der Schleifen: 0 nach vorn, 1 links, 2 rechts, 3 nach hinten. Bild 0 ist das Standbild.
+  const LOOPS = [['vorn', 'front', false], ['links', 'side', true], ['rechts', 'side', false], ['hinten', 'back', false]];
+  for (const ch of characters) {
+    const sheet = buildSheet(ch), src = toRGBA(sheet), A = sheet.meta.animations, cw = ch.cell.w;
+    // Unten bündig beschneiden: AGS setzt die Figur mit der unteren Mitte des Sprites auf ihre Position.
+    let bottom = 0;
+    for (let y = 0; y < src.h; y++)
+      for (let x = 0; x < src.w; x++) if (src.data[(y * src.w + x) * 4 + 3]) bottom = Math.max(bottom, y % ch.cell.h);
+    const hh = bottom + 1, n = ch.gait.frames + 1;
+    const grid = blank(cw * n, hh * LOOPS.length);
+    LOOPS.forEach(([label, view, flip], loop) => {
+      const frames = [A['stand_' + view].frames[0], ...A['walk_' + view].frames];
+      frames.forEach((f, k) => {
+        const one = blank(cw, hh);
+        blit(one, 0, 0, src, f.x, f.y, cw, hh, flip);
+        write(`figuren/${ch.name}/${ch.name}_loop${loop}_${label}_${k}.png`, one);
+        blit(grid, k * cw, loop * hh, src, f.x, f.y, cw, hh, flip);
+      });
+    });
+    write(`figuren/${ch.name}/${ch.name}_raster.png`, grid);
+    const step = sheet.meta.stepPx, delay = Math.round(GAME_FPS / A.walk_side.fps);
+    lines.push(`| ${ch.name} | ${cw}×${hh} | ${n} | ${step} | 1 | ${delay} |`);
+  }
+
+  const office = buildObjectSheet(), olines = [];
+  for (const [name, s] of Object.entries(office.meta.sprites)) {
+    const one = blank(s.w, s.h);
+    blit(one, 0, 0, office, s.x, s.y, s.w, s.h);
+    write(`objekte/${name}.png`, one);
+    olines.push(`| ${name}.png | ${s.label}${name.endsWith('_schraeg') ? ' (schräg)' : ''} | ${s.w}×${s.h} |`);
+  }
+
+  // Leerer Testraum in Spielauflösung als Raumhintergrund.
+  const room = blank(320, 200);
+  const rect = (hex, x, y, w, h) => {
+    const c = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+    for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) room.data.set([...c, 255], (yy * 320 + xx) * 4);
+  };
+  rect('#b5bfa8', 0, 0, 320, 112); rect('#7d9a94', 0, 84, 320, 28); rect('#5f7a78', 0, 83, 320, 1); rect('#544c44', 0, 108, 320, 4); rect('#8c6c4a', 0, 112, 320, 88);
+  for (let y = 122; y < 200; y += 14) rect('#6a5038', 0, y, 320, 1);
+  write('raum_leer.png', room);
+
+  write('LIESMICH.md', fs.readFileSync(path.join(root, 'src', 'ags_liesmich.md'), 'utf8')
+    .replace('__FIGUREN__', lines.join('\n')).replace('__OBJEKTE__', olines.join('\n')));
+  console.log(`AGS-Export: ${characters.length} Figuren, ${olines.length} Objekte -> ags/`);
+}
+
 if (cmd === 'build') build();
+else if (cmd === 'ags') ags();
 else if (cmd === 'check') check();
-else console.log('Aufruf: node cli.js build | check');
+else console.log('Aufruf: node cli.js build | check | ags');
