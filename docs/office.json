@@ -1,0 +1,402 @@
+{
+  "image": "office.png",
+  "note": "anchor = Standpunkt am Boden bzw. an der Wand, relativ zur linken oberen Ecke des Sprites.",
+  "sprites": {
+    "door": {
+      "label": "Tür",
+      "x": 1,
+      "y": 1,
+      "w": 26,
+      "h": 52,
+      "anchor": {
+        "x": 13,
+        "y": 52
+      }
+    },
+    "shelf_schraeg": {
+      "label": "Bücherregal",
+      "x": 28,
+      "y": 1,
+      "w": 24,
+      "h": 51,
+      "anchor": {
+        "x": 12,
+        "y": 49
+      }
+    },
+    "shelf": {
+      "label": "Bücherregal",
+      "x": 53,
+      "y": 1,
+      "w": 24,
+      "h": 49,
+      "anchor": {
+        "x": 12,
+        "y": 48
+      }
+    },
+    "floorlamp": {
+      "label": "Stehlampe",
+      "x": 78,
+      "y": 1,
+      "w": 10,
+      "h": 44,
+      "anchor": {
+        "x": 5,
+        "y": 43
+      }
+    },
+    "floorlamp_schraeg": {
+      "label": "Stehlampe",
+      "x": 89,
+      "y": 1,
+      "w": 10,
+      "h": 44,
+      "anchor": {
+        "x": 5,
+        "y": 43
+      }
+    },
+    "ficus": {
+      "label": "Bäumchen",
+      "x": 100,
+      "y": 1,
+      "w": 19,
+      "h": 41,
+      "anchor": {
+        "x": 10,
+        "y": 40
+      }
+    },
+    "ficus_schraeg": {
+      "label": "Bäumchen",
+      "x": 120,
+      "y": 1,
+      "w": 19,
+      "h": 41,
+      "anchor": {
+        "x": 10,
+        "y": 40
+      }
+    },
+    "cabinet_schraeg": {
+      "label": "Aktenschrank",
+      "x": 140,
+      "y": 1,
+      "w": 22,
+      "h": 37,
+      "anchor": {
+        "x": 11,
+        "y": 35
+      }
+    },
+    "cabinet": {
+      "label": "Aktenschrank",
+      "x": 163,
+      "y": 1,
+      "w": 18,
+      "h": 36,
+      "anchor": {
+        "x": 9,
+        "y": 35
+      }
+    },
+    "cooler": {
+      "label": "Wasserspender",
+      "x": 182,
+      "y": 1,
+      "w": 10,
+      "h": 33,
+      "anchor": {
+        "x": 5,
+        "y": 32
+      }
+    },
+    "cooler_schraeg": {
+      "label": "Wasserspender",
+      "x": 193,
+      "y": 1,
+      "w": 12,
+      "h": 33,
+      "anchor": {
+        "x": 6,
+        "y": 32
+      }
+    },
+    "plant": {
+      "label": "Zimmerpflanze",
+      "x": 206,
+      "y": 1,
+      "w": 20,
+      "h": 30,
+      "anchor": {
+        "x": 10,
+        "y": 29
+      }
+    },
+    "plant_schraeg": {
+      "label": "Zimmerpflanze",
+      "x": 227,
+      "y": 1,
+      "w": 17,
+      "h": 30,
+      "anchor": {
+        "x": 8,
+        "y": 29
+      }
+    },
+    "window": {
+      "label": "Fenster",
+      "x": 245,
+      "y": 1,
+      "w": 32,
+      "h": 30,
+      "anchor": {
+        "x": 16,
+        "y": 28
+      }
+    },
+    "chair": {
+      "label": "Bürostuhl",
+      "x": 278,
+      "y": 1,
+      "w": 10,
+      "h": 27,
+      "anchor": {
+        "x": 5,
+        "y": 26
+      }
+    },
+    "chair_schraeg": {
+      "label": "Bürostuhl",
+      "x": 289,
+      "y": 1,
+      "w": 14,
+      "h": 27,
+      "anchor": {
+        "x": 7,
+        "y": 26
+      }
+    },
+    "desk_schraeg": {
+      "label": "Schreibtisch",
+      "x": 1,
+      "y": 54,
+      "w": 44,
+      "h": 24,
+      "anchor": {
+        "x": 22,
+        "y": 21
+      }
+    },
+    "desk": {
+      "label": "Schreibtisch",
+      "x": 46,
+      "y": 54,
+      "w": 42,
+      "h": 22,
+      "anchor": {
+        "x": 21,
+        "y": 20
+      }
+    },
+    "board": {
+      "label": "Pinnwand",
+      "x": 89,
+      "y": 54,
+      "w": 26,
+      "h": 18,
+      "anchor": {
+        "x": 13,
+        "y": 18
+      }
+    },
+    "monitor_schraeg": {
+      "label": "Monitor",
+      "x": 116,
+      "y": 54,
+      "w": 12,
+      "h": 14,
+      "anchor": {
+        "x": 6,
+        "y": 13
+      }
+    },
+    "picture": {
+      "label": "Bild",
+      "x": 129,
+      "y": 54,
+      "w": 18,
+      "h": 14,
+      "anchor": {
+        "x": 9,
+        "y": 14
+      }
+    },
+    "monitor": {
+      "label": "Monitor",
+      "x": 148,
+      "y": 54,
+      "w": 14,
+      "h": 13,
+      "anchor": {
+        "x": 7,
+        "y": 13
+      }
+    },
+    "carton": {
+      "label": "Umzugskarton",
+      "x": 163,
+      "y": 54,
+      "w": 12,
+      "h": 12,
+      "anchor": {
+        "x": 6,
+        "y": 11
+      }
+    },
+    "carton_schraeg": {
+      "label": "Umzugskarton",
+      "x": 176,
+      "y": 54,
+      "w": 16,
+      "h": 12,
+      "anchor": {
+        "x": 8,
+        "y": 11
+      }
+    },
+    "cactus": {
+      "label": "Kaktus",
+      "x": 193,
+      "y": 54,
+      "w": 8,
+      "h": 12,
+      "anchor": {
+        "x": 3,
+        "y": 12
+      }
+    },
+    "cactus_schraeg": {
+      "label": "Kaktus",
+      "x": 202,
+      "y": 54,
+      "w": 7,
+      "h": 12,
+      "anchor": {
+        "x": 3,
+        "y": 12
+      }
+    },
+    "desklamp": {
+      "label": "Schreibtischlampe",
+      "x": 210,
+      "y": 54,
+      "w": 7,
+      "h": 11,
+      "anchor": {
+        "x": 2,
+        "y": 11
+      }
+    },
+    "desklamp_schraeg": {
+      "label": "Schreibtischlampe",
+      "x": 218,
+      "y": 54,
+      "w": 7,
+      "h": 11,
+      "anchor": {
+        "x": 2,
+        "y": 11
+      }
+    },
+    "rug_schraeg": {
+      "label": "Teppich",
+      "x": 226,
+      "y": 54,
+      "w": 63,
+      "h": 10,
+      "anchor": {
+        "x": 32,
+        "y": 5
+      }
+    },
+    "bin": {
+      "label": "Papierkorb",
+      "x": 290,
+      "y": 54,
+      "w": 6,
+      "h": 9,
+      "anchor": {
+        "x": 3,
+        "y": 8
+      }
+    },
+    "bin_schraeg": {
+      "label": "Papierkorb",
+      "x": 297,
+      "y": 54,
+      "w": 6,
+      "h": 9,
+      "anchor": {
+        "x": 3,
+        "y": 8
+      }
+    },
+    "printer": {
+      "label": "Drucker",
+      "x": 304,
+      "y": 54,
+      "w": 12,
+      "h": 8,
+      "anchor": {
+        "x": 6,
+        "y": 7
+      }
+    },
+    "printer_schraeg": {
+      "label": "Drucker",
+      "x": 1,
+      "y": 79,
+      "w": 14,
+      "h": 8,
+      "anchor": {
+        "x": 7,
+        "y": 7
+      }
+    },
+    "rug": {
+      "label": "Teppich",
+      "x": 16,
+      "y": 79,
+      "w": 58,
+      "h": 6,
+      "anchor": {
+        "x": 29,
+        "y": 3
+      }
+    },
+    "papers": {
+      "label": "Papierstapel",
+      "x": 75,
+      "y": 79,
+      "w": 7,
+      "h": 4,
+      "anchor": {
+        "x": 3,
+        "y": 3
+      }
+    },
+    "papers_schraeg": {
+      "label": "Papierstapel",
+      "x": 83,
+      "y": 79,
+      "w": 10,
+      "h": 4,
+      "anchor": {
+        "x": 5,
+        "y": 3
+      }
+    }
+  }
+}

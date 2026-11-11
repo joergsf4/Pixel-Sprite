@@ -1,35 +1,62 @@
 <!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sprite-Vorschau</title>
 <style>
-  body { margin: 0; background: #20242c; color: #cfd6e0; font: 14px system-ui, sans-serif; text-align: center; }
-  canvas { image-rendering: pixelated; width: 960px; max-width: 100%; margin-top: 16px; }
-  p { margin: 12px; }
+  body { margin: 0 12px 32px; background: #20242c; color: #cfd6e0; font: 14px system-ui, sans-serif; text-align: center; }
+  canvas, img { image-rendering: pixelated; max-width: 100%; display: block; margin: 16px auto 0; }
+  #c { width: 960px; }
+  #strip { width: 1080px; }
+  #sheet { width: 960px; background: #6b7f8f; }
+  h2 { font-size: 15px; margin: 28px 0 0; }
+  p { margin: 8px; color: #9aa5b5; }
 </style>
 <canvas id="c" width="320" height="200"></canvas>
-<p>Oben: jede Figur auf der Stelle (Seite, vorn, hinten). Unten: alle laufen im Rechteck durch den Raum.
+<p>Alle Figuren laufen im Rechteck durch ein Büro aus den Beispielobjekten.
   Tempo: <input id="fps" type="range" min="4" max="16" value="10"> <span id="fpsv">10</span> Bilder/s</p>
+<h2>Figuren auf der Stelle</h2>
+<canvas id="strip" width="360" height="52"></canvas>
+<p>Je Figur: Gehen von der Seite, von vorn, von hinten, dazu das Standbild.</p>
+<h2>Büroobjekte</h2>
+<img id="sheet" alt="Sprite-Sheet der Büroobjekte">
+<p>Das ganze Sprite-Sheet: jedes Objekt von vorn und schräg gedreht.</p>
 <script>
 const chars = __DATA__;
+const office = __OFFICE__;
 const ctx = document.getElementById('c').getContext('2d');
+const sctx = document.getElementById('strip').getContext('2d');
 const fpsEl = document.getElementById('fps');
 fpsEl.oninput = () => (document.getElementById('fpsv').textContent = fpsEl.value);
 
-function draw(c, name, i, x, y, flip) {
+function draw(g, c, name, i, x, y, flip) {
   const m = c.meta, an = m.animations[name];
   const f = an.frames[i % an.frames.length];
-  ctx.save();
-  ctx.translate(Math.round(x), Math.round(y));
-  if (flip) ctx.scale(-1, 1);
-  ctx.drawImage(c.img, f.x, f.y, f.w, f.h, -m.anchor.x, -m.anchor.y, f.w, f.h);
-  ctx.restore();
+  g.save();
+  g.translate(Math.round(x), Math.round(y));
+  if (flip) g.scale(-1, 1);
+  g.drawImage(c.img, f.x, f.y, f.w, f.h, -m.anchor.x, -m.anchor.y, f.w, f.h);
+  g.restore();
 }
+function drawObject(name, x, y) {
+  const s = office.meta.sprites[name];
+  ctx.drawImage(office.img, s.x, s.y, s.w, s.h, x - s.anchor.x, y - s.anchor.y, s.w, s.h);
+}
+
+// Einrichtung: erst Wand, dann Boden von hinten nach vorn; was auf Möbeln steht, folgt direkt danach.
+const FLOOR = 112;
+const furniture = [
+  ['window', 160, 72], ['picture', 216, 74], ['board', 262, 70], ['door', 108, FLOOR],
+  ['shelf', 40, 117], ['floorlamp', 72, 117], ['cabinet', 252, 117], ['cactus', 252, 84], ['cooler_schraeg', 222, 119],
+  ['plant', 16, 122], ['ficus', 302, 124],
+  ['desk', 160, 126], ['monitor', 166, 108], ['desklamp', 146, 108],
+  ['chair_schraeg', 194, 128], ['bin', 132, 129], ['carton_schraeg', 296, 142],
+];
 
 // Rundweg je Figur: rechts, nach vorn, links, nach hinten. Start und Größe je Figur versetzt.
 const routes = {
-  hero: { x: 70, y: 138, w: 144, h: 14, start: 0 },
-  fatman: { x: 150, y: 160, w: 96, h: 16, start: 7 },
-  dog: { x: 40, y: 178, w: 192, h: 12, start: 3 },
+  hero: { x: 70, y: 140, w: 144, h: 14, start: 0 },
+  fatman: { x: 150, y: 162, w: 96, h: 16, start: 7 },
+  dog: { x: 40, y: 180, w: 192, h: 12, start: 3 },
 };
 const DEPTH = 0.4; // Tempo nach vorn/hinten im Verhältnis zum Tempo seitwärts
 function place(c, tick) {
@@ -52,26 +79,32 @@ let tick = 0, last = 0;
 function frame(ts) {
   if (ts - last >= 1000 / fpsEl.value) {
     last = ts; tick++;
-    ctx.fillStyle = '#7d8fa0'; ctx.fillRect(0, 0, 320, 200);
-    ctx.fillStyle = '#5d6a70'; ctx.fillRect(0, 112, 320, 88);
-    ctx.fillStyle = '#525e64';
-    for (let x = 0; x < 320; x += 12) ctx.fillRect(x, 112, 1, 88);
-    // Reihe auf der Stelle
-    let x = 20;
-    for (const c of chars) {
-      for (const v of ['side', 'front', 'back']) { draw(c, 'walk_' + v, tick, x, 60, false); x += 30; }
-      draw(c, 'stand_front', 0, x, 60, false); x += 34;
-    }
-    // Rundweg, von hinten nach vorn gezeichnet
+    // Raum: Wand mit Sockel, Dielenboden
+    ctx.fillStyle = '#b5bfa8'; ctx.fillRect(0, 0, 320, FLOOR);
+    ctx.fillStyle = '#7d9a94'; ctx.fillRect(0, 84, 320, FLOOR - 84);
+    ctx.fillStyle = '#5f7a78'; ctx.fillRect(0, 83, 320, 1);
+    ctx.fillStyle = '#544c44'; ctx.fillRect(0, FLOOR - 4, 320, 4);
+    ctx.fillStyle = '#8c6c4a'; ctx.fillRect(0, FLOOR, 320, 200 - FLOOR);
+    ctx.fillStyle = '#6a5038';
+    for (let y = FLOOR + 10; y < 200; y += 14) ctx.fillRect(0, y, 320, 1);
+    for (const [name, x, y] of furniture) drawObject(name, x, y);
     const placed = chars.map((c) => ({ c, p: place(c, tick) })).sort((a, b) => a.p.y - b.p.y);
-    for (const { c, p } of placed) draw(c, p.anim, tick, p.x, p.y, p.flip);
+    for (const { c, p } of placed) draw(ctx, c, p.anim, tick, p.x, p.y, p.flip);
+
+    // Reihe auf der Stelle
+    sctx.fillStyle = '#6b7f8f'; sctx.fillRect(0, 0, 360, 52);
+    let x = 18;
+    for (const c of chars)
+      for (const [anim, i] of [['walk_side', tick], ['walk_front', tick], ['walk_back', tick], ['stand_front', 0]]) { draw(sctx, c, anim, i, x, 49, false); x += 29; }
   }
   requestAnimationFrame(frame);
 }
-let pending = chars.length;
-for (const c of chars) {
+const images = [...chars, office];
+let pending = images.length;
+for (const c of images) {
   c.img = new Image();
   c.img.onload = () => { if (--pending === 0) requestAnimationFrame(frame); };
   c.img.src = 'data:image/png;base64,' + c.png;
 }
+document.getElementById('sheet').src = 'data:image/png;base64,' + office.png;
 </script>

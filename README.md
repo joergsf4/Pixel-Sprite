@@ -80,6 +80,17 @@ Nach dem Rendern greifen ein paar Regeln, die ein Pixel-Artist von Hand anwenden
 
 Die Einzelbilder werden zeilenweise zusammengesetzt: je Ansicht eine Zeile Gehen und eine Zeile Stehen. Das PNG schreibt ein eigener kleiner Encoder auf Basis von `node:zlib`.
 
+## Beispiel: Büroobjekte
+
+Dasselbe Verfahren taugt auch für Gegenstände. `src/objects.js` enthält einen Katalog von 20 Büroobjekten (Schreibtisch, Bürostuhl, Aktenschrank, Bücherregal, Monitor, Pflanzen, Tür, Fenster …), jeweils als Liste von Quadern, Zylindern, Kapseln und Ellipsoiden. `node cli.js build` rendert sie von vorn und schräg gedreht und packt sie in ein Sprite-Sheet.
+
+![Büroobjekte](docs/office_preview.png)
+
+- `out/office.png` ist das Sheet in Originalgröße, `out/office.json` nennt je Sprite Lage, Größe und Standpunkt (`anchor`).
+- Namen wie `desk` sind die Ansicht von vorn, `desk_schraeg` die um 30° gedrehte. Wandobjekte (Tür, Fenster, Bild, Pinnwand) gibt es nur von vorn.
+- Maßstab wie bei den Figuren: 1 Einheit ist 1 Pixel, der Schreibtisch ist 19 Pixel hoch, der Abenteurer 44.
+- Anders als die Figuren sind die Objekte perspektivisch aus Augenhöhe gerendert, man sieht also leicht auf die Oberseiten.
+
 ## Format der JSON-Datei
 
 ```json

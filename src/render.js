@@ -2,7 +2,7 @@
 
 const BLEND = 0.8; // Weichheit der Übergänge innerhalb eines Körperteils
 const CAM_DIST = 60;
-const hit = { pr: null };
+export const hit = { pr: null };
 
 function sdPrim(pr, x, y, z) {
   if (pr.t === 0) {
@@ -11,6 +11,18 @@ function sdPrim(pr, x, y, z) {
     h = h < 0 ? 0 : h > 1 ? 1 : h;
     const dx = px - pr.bx * h, dy = py - pr.by * h, dz = pz - pr.bz * h;
     return Math.sqrt(dx * dx + dy * dy + dz * dz) - (pr.ra + (pr.rb - pr.ra) * h);
+  }
+  if (pr.t === 2) { // Quader, um die Hochachse gedreht
+    const px = x - pr.cx, pz = z - pr.cz;
+    const lx = Math.abs(pr.c * px - pr.s * pz) - pr.hx, ly = Math.abs(y - pr.cy) - pr.hy, lz = Math.abs(pr.s * px + pr.c * pz) - pr.hz;
+    const ox = lx > 0 ? lx : 0, oy = ly > 0 ? ly : 0, oz = lz > 0 ? lz : 0;
+    return Math.sqrt(ox * ox + oy * oy + oz * oz) + Math.min(Math.max(lx, ly, lz), 0) - pr.r;
+  }
+  if (pr.t === 3) { // stehender Zylinder
+    const px = x - pr.cx, pz = z - pr.cz;
+    const dr = Math.sqrt(px * px + pz * pz) - pr.R, dy = Math.abs(y - pr.cy) - pr.hh;
+    const ox = dr > 0 ? dr : 0, oy = dy > 0 ? dy : 0;
+    return Math.sqrt(ox * ox + oy * oy) + Math.min(Math.max(dr, dy), 0) - pr.r;
   }
   const px = x - pr.cx, py = y - pr.cy, pz = z - pr.cz;
   const lx = px * pr.xx + py * pr.xy + pz * pr.xz;
@@ -25,7 +37,7 @@ function sdPrim(pr, x, y, z) {
 }
 
 // Abstand zur Figur; merkt sich die nächstgelegene Form in hit.pr.
-function scene(prims, x, y, z) {
+export function scene(prims, x, y, z) {
   let best = 1e9, bestPr = null;
   let part = -1, gd = 1e9, gmin = 1e9, gpr = null;
   for (let i = 0; i < prims.length; i++) {

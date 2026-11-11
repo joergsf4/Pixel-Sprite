@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// node cli.js build  -> je Figur out/<name>.png, .json, _preview.png; dazu out/preview.html und docs/ (GitHub Pages)
+// node cli.js build  -> je Figur out/<name>.png, .json, _preview.png; out/office.* (Büroobjekte); out/preview.html und docs/ (GitHub Pages)
 // node cli.js check  -> prüft Gang und Sprite-Sheets
 
 import fs from 'node:fs';
@@ -10,6 +10,7 @@ import { buildSheet, toRGBA } from './src/sheet.js';
 import { encodePNG } from './src/png.js';
 import { walk, footPath, footRef } from './src/anim.js';
 import { solve } from './src/rig.js';
+import { buildObjectSheet } from './src/objects.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const out = path.join(root, 'out');
@@ -28,12 +29,35 @@ function build() {
     data.push({ name: ch.name, meta: sheet.meta, png: png.toString('base64') });
     console.log(`${ch.name}: ${sheet.w}×${sheet.h} px, ${sheet.pal.colors.length - 1} Farben, ${Date.now() - t0} ms`);
   }
-  // Eigenständige Vorschau mit Bewegung (Doppelklick genügt, kein Server nötig).
-  const html = fs.readFileSync(path.join(root, 'src', 'preview.html'), 'utf8').replace('__DATA__', () => JSON.stringify(data));
-  fs.writeFileSync(path.join(out, 'preview.html'), html);
-  // Kopie für GitHub Pages samt Übersichtsbildern für das README.
   const docs = path.join(root, 'docs');
   fs.mkdirSync(docs, { recursive: true });
+
+  // Beispiel: Büroobjekte als Sprite-Sheet.
+  const t0 = Date.now();
+  const office = buildObjectSheet();
+  const z = 3, big = new Uint8Array(office.w * z * office.h * z * 4);
+  const bg = [0x6b, 0x7f, 0x8f, 255];
+  for (let y = 0; y < office.h * z; y++)
+    for (let x = 0; x < office.w * z; x++) {
+      const i = (Math.floor(y / z) * office.w + Math.floor(x / z)) * 4;
+      big.set(office.data[i + 3] ? office.data.subarray(i, i + 4) : bg, (y * office.w * z + x) * 4);
+    }
+  const files = {
+    'office.png': encodePNG(office),
+    'office.json': JSON.stringify(office.meta, null, 2),
+    'office_preview.png': encodePNG({ w: office.w * z, h: office.h * z, data: big }),
+  };
+  for (const [f, data] of Object.entries(files)) {
+    fs.writeFileSync(path.join(out, f), data);
+    fs.writeFileSync(path.join(docs, f), data);
+  }
+  console.log(`office: ${office.w}×${office.h} px, ${Object.keys(office.meta.sprites).length} Sprites, ${Date.now() - t0} ms`);
+
+  // Eigenständige Vorschau mit Bewegung (Doppelklick genügt, kein Server nötig).
+  const html = fs.readFileSync(path.join(root, 'src', 'preview.html'), 'utf8').replace('__DATA__', () => JSON.stringify(data))
+    .replace('__OFFICE__', () => JSON.stringify({ meta: office.meta, png: files['office.png'].toString('base64') }));
+  fs.writeFileSync(path.join(out, 'preview.html'), html);
+  // Kopie für GitHub Pages samt Übersichtsbildern für das README.
   fs.writeFileSync(path.join(docs, 'index.html'), html);
   for (const ch of characters)
     for (const f of [`${ch.name}.png`, `${ch.name}_preview.png`]) fs.copyFileSync(path.join(out, f), path.join(docs, f));

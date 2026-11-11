@@ -55,13 +55,13 @@ export function ik2(root, target, l1, l2, pole) {
 
 // --- Grundformen -----------------------------------------------------------
 
-function capsule(a, b, ra, rb, mat, part) {
+export function capsule(a, b, ra, rb, mat, part) {
   const d = sub(b, a);
   const l2 = dot(d, d) || 1e-6;
   return { t: 0, ax: a[0], ay: a[1], az: a[2], bx: d[0], by: d[1], bz: d[2], inv: 1 / l2, ra, rb, mat, part };
 }
 
-function ellipsoid(c, m, r, mat, part) {
+export function ellipsoid(c, m, r, mat, part) {
   return {
     t: 1, cx: c[0], cy: c[1], cz: c[2],
     // Spalten von m = lokale Achsen in Weltkoordinaten
