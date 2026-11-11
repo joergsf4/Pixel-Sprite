@@ -1,0 +1,11 @@
+{
+  "name": "pixel-sprite",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Erzeugt Adventure-Sprites aus einer im Code beschriebenen 3D-Figur",
+  "scripts": {
+    "build": "node cli.js build",
+    "check": "node cli.js check"
+  }
+}

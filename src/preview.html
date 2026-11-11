@@ -1,0 +1,77 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Sprite-Vorschau</title>
+<style>
+  body { margin: 0; background: #20242c; color: #cfd6e0; font: 14px system-ui, sans-serif; text-align: center; }
+  canvas { image-rendering: pixelated; width: 960px; max-width: 100%; margin-top: 16px; }
+  p { margin: 12px; }
+</style>
+<canvas id="c" width="320" height="200"></canvas>
+<p>Oben: jede Figur auf der Stelle (Seite, vorn, hinten). Unten: alle laufen im Rechteck durch den Raum.
+  Tempo: <input id="fps" type="range" min="4" max="16" value="10"> <span id="fpsv">10</span> Bilder/s</p>
+<script>
+const chars = __DATA__;
+const ctx = document.getElementById('c').getContext('2d');
+const fpsEl = document.getElementById('fps');
+fpsEl.oninput = () => (document.getElementById('fpsv').textContent = fpsEl.value);
+
+function draw(c, name, i, x, y, flip) {
+  const m = c.meta, an = m.animations[name];
+  const f = an.frames[i % an.frames.length];
+  ctx.save();
+  ctx.translate(Math.round(x), Math.round(y));
+  if (flip) ctx.scale(-1, 1);
+  ctx.drawImage(c.img, f.x, f.y, f.w, f.h, -m.anchor.x, -m.anchor.y, f.w, f.h);
+  ctx.restore();
+}
+
+// Rundweg je Figur: rechts, nach vorn, links, nach hinten. Start und Größe je Figur versetzt.
+const routes = {
+  hero: { x: 70, y: 138, w: 144, h: 14, start: 0 },
+  fatman: { x: 150, y: 160, w: 96, h: 16, start: 7 },
+  dog: { x: 40, y: 178, w: 192, h: 12, start: 3 },
+};
+const DEPTH = 0.4; // Tempo nach vorn/hinten im Verhältnis zum Tempo seitwärts
+function place(c, tick) {
+  const r = routes[c.name] || routes.hero, step = c.meta.stepPx;
+  const legs = [
+    { anim: 'walk_side', flip: false, dx: step, dy: 0, n: Math.round(r.w / step) },
+    { anim: 'walk_front', flip: false, dx: 0, dy: step * DEPTH, n: Math.round(r.h / (step * DEPTH)) },
+    { anim: 'walk_side', flip: true, dx: -step, dy: 0, n: Math.round(r.w / step) },
+    { anim: 'walk_back', flip: false, dx: 0, dy: -step * DEPTH, n: Math.round(r.h / (step * DEPTH)) },
+  ];
+  const total = legs.reduce((s, l) => s + l.n, 0);
+  let k = (tick + r.start) % total, x = r.x, y = r.y;
+  for (const l of legs) {
+    if (k < l.n) return { anim: l.anim, flip: l.flip, x: x + l.dx * k, y: y + l.dy * k };
+    x += l.dx * l.n; y += l.dy * l.n; k -= l.n;
+  }
+}
+
+let tick = 0, last = 0;
+function frame(ts) {
+  if (ts - last >= 1000 / fpsEl.value) {
+    last = ts; tick++;
+    ctx.fillStyle = '#7d8fa0'; ctx.fillRect(0, 0, 320, 200);
+    ctx.fillStyle = '#5d6a70'; ctx.fillRect(0, 112, 320, 88);
+    ctx.fillStyle = '#525e64';
+    for (let x = 0; x < 320; x += 12) ctx.fillRect(x, 112, 1, 88);
+    // Reihe auf der Stelle
+    let x = 20;
+    for (const c of chars) {
+      for (const v of ['side', 'front', 'back']) { draw(c, 'walk_' + v, tick, x, 60, false); x += 30; }
+      draw(c, 'stand_front', 0, x, 60, false); x += 34;
+    }
+    // Rundweg, von hinten nach vorn gezeichnet
+    const placed = chars.map((c) => ({ c, p: place(c, tick) })).sort((a, b) => a.p.y - b.p.y);
+    for (const { c, p } of placed) draw(c, p.anim, tick, p.x, p.y, p.flip);
+  }
+  requestAnimationFrame(frame);
+}
+let pending = chars.length;
+for (const c of chars) {
+  c.img = new Image();
+  c.img.onload = () => { if (--pending === 0) requestAnimationFrame(frame); };
+  c.img.src = 'data:image/png;base64,' + c.png;
+}
+</script>
